@@ -1,4 +1,4 @@
-name: AI Video Maker
+ame: AI Video Maker
 on:
   schedule:
     - cron: '0 0,12 * * *'
