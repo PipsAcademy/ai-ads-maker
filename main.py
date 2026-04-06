@@ -1,34 +1,42 @@
 import os
+import sys
 from openai import OpenAI
 from moviepy.editor import ColorClip, AudioFileClip
 
-# API Setup
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# API Key Check
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    print("ERROR: OPENAI_API_KEY nahi mili. Settings > Secrets mein check karein.")
+    sys.exit(1)
+
+client = OpenAI(api_key=api_key)
 
 def start_making():
     try:
-        print("Step 1: AI Voice ban rahi hai...")
-        # Simple Voiceover
+        print("--- Step 1: Voiceover generating... ---")
         response = client.audio.speech.create(
             model="tts-1",
             voice="onyx",
-            input="This is your daily AI generated advertisement. Innovation at its best."
+            input="Welcome to your automated AI advertisement. Making videos daily with GitHub Actions."
         )
         response.stream_to_file("voice.mp3")
+        print("Voice saved successfully!")
 
-        print("Step 2: Video assemble ho rahi hai...")
+        print("--- Step 2: Creating Video... ---")
         audio = AudioFileClip("voice.mp3")
         
-        # Simple Blue Background (No images needed)
-        clip = ColorClip(size=(720, 1280), color=(0, 100, 200)).set_duration(audio.duration)
+        # Simple Blue Background
+        clip = ColorClip(size=(720, 1280), color=(0, 100, 255)).set_duration(audio.duration)
         
         video = clip.set_audio(audio)
+        # fps=24 aur audio_codec lazmi hai GitHub par
         video.write_videofile("daily_ad.mp4", fps=24, codec="libx264", audio_codec="aac")
-        print("Mubarak ho! Video tayyar hai.")
         
+        print("--- SUCCESS: Video is ready! ---")
+
     except Exception as e:
-        print(f"Galti hui hai: {e}")
-        exit(1) # Taake GitHub ko pata chale ke error hai
+        print(f"CRITICAL ERROR: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     start_making()
